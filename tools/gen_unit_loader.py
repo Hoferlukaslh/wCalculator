@@ -22,6 +22,21 @@ def fix(t):
 
 units, factors = fix(units), fix(factors)
 
+# Corrections of the conversion factors copied from Windows Calculator, checked against exact definitions
+# (SI, NIST, legal definitions of the US units) by tools/check_units.py and tests/ConverterAccuracyTests.cs.
+# The original rounds these: 1 mph = 1.6092 km/h instead of 1.609344, 1 atm = 760.13 mmHg instead of 760, ...
+FACTOR_CORRECTIONS = [
+    ("{ Energy_ElectronVolt, 0.0000000000000000001602176565 },", "{ Energy_ElectronVolt, 0.0000000000000000001602176634 },"),  # exact since the 2019 SI redefinition
+    ("{ Volume_CupUS, 236.588237 },", "{ Volume_CupUS, 236.5882365 },"),                                                       # 1/16 US gallon
+    ("{ Speed_Knot, 51.44 },", "{ Speed_Knot, 51.444444444444444444 },"),                                                      # 1852 m / 3600 s
+    ("{ Speed_MilesPerHour, 44.7 },", "{ Speed_MilesPerHour, 44.704 },"),                                                      # 1609.344 m / 3600 s
+    ("{ Pressure_MillimeterOfMercury, 0.0013155687145324 },", "{ Pressure_MillimeterOfMercury, 0.0013157894736842105 },"),   # 1 atm = 760 mmHg
+    ("{ Pressure_PSI, 0.068045961016531 },", "{ Pressure_PSI, 0.06804596390987773 },"),                                         # lbf / in2 / 101325 Pa
+]
+for old, new in FACTOR_CORRECTIONS:
+    assert factors.count(old) == 1, 'factor to correct not found (did the upstream table change?): ' + old
+    factors = factors.replace(old, new)
+
 # the 'matches GetConversionData in C++' comment is kept inside 'factors' only partially; fine.
 template = '''// Unit and conversion data of the unit converter, adapted from the C# UnitConverterDataLoader of Windows Calculator.
 // Original: Copyright (c) Microsoft Corporation. Licensed under the MIT License.

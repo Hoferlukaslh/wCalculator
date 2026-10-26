@@ -538,7 +538,7 @@ public sealed class UnitConverterDataLoader : IConverterDataLoader
                     { Energy_BritishThermalUnit, 1055.056 },
                     { Energy_Kilojoule, 1000 },
                     { Energy_Kilowatthour, 3600000 },
-                    { Energy_ElectronVolt, 0.0000000000000000001602176565 },
+                    { Energy_ElectronVolt, 0.0000000000000000001602176634 },
                     { Energy_Joule, 1 },
                     { Energy_FootPound, 1.3558179483314 },
                     { Energy_Battery, 9000 },
@@ -587,7 +587,7 @@ public sealed class UnitConverterDataLoader : IConverterDataLoader
                 },
                 [ConverterCategory.Volume] = new Dictionary<int, double>
                 {
-                    { Volume_CupUS, 236.588237 },
+                    { Volume_CupUS, 236.5882365 },
                     { Volume_PintUS, 473.176473 },
                     { Volume_PintUK, 568.26125 },
                     { Volume_QuartUS, 946.352946 },
@@ -637,10 +637,10 @@ public sealed class UnitConverterDataLoader : IConverterDataLoader
                     { Speed_CentimetersPerSecond, 1 },
                     { Speed_FeetPerSecond, 30.48 },
                     { Speed_KilometersPerHour, 27.777777777777777777778 },
-                    { Speed_Knot, 51.44 },
+                    { Speed_Knot, 51.444444444444444444 },
                     { Speed_Mach, 34030 },
                     { Speed_MetersPerSecond, 100 },
-                    { Speed_MilesPerHour, 44.7 },
+                    { Speed_MilesPerHour, 44.704 },
                     { Speed_Turtle, 8.94 },
                     { Speed_Horse, 2011.5 },
                     { Speed_Jet, 24585 },
@@ -656,9 +656,9 @@ public sealed class UnitConverterDataLoader : IConverterDataLoader
                     { Pressure_Atmosphere, 1 },
                     { Pressure_Bar, 0.9869232667160128 },
                     { Pressure_KiloPascal, 0.0098692326671601 },
-                    { Pressure_MillimeterOfMercury, 0.0013155687145324 },
+                    { Pressure_MillimeterOfMercury, 0.0013157894736842105 },
                     { Pressure_Pascal, 9.869232667160128e-6 },
-                    { Pressure_PSI, 0.068045961016531 },
+                    { Pressure_PSI, 0.06804596390987773 },
                 },
             };
 

@@ -1,0 +1,86 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CalcApp.ViewModels"
+             xmlns:v="using:CalcApp.Views"
+             xmlns:ic="using:CalcApp"
+             xmlns:loc="using:CalcApp.Localization"
+             x:Class="CalcApp.Views.MainView"
+             Focusable="True"
+             TextInput="OnTextInput"
+             KeyDown="OnKeyDown">
+  <UserControl.DataTemplates>
+    <DataTemplate DataType="vm:CalculatorViewModel">
+      <v:CalculatorView/>
+    </DataTemplate>
+    <DataTemplate DataType="vm:DateViewModel">
+      <v:DateView/>
+    </DataTemplate>
+    <DataTemplate DataType="vm:ConverterViewModel">
+      <v:ConverterView/>
+    </DataTemplate>
+    <DataTemplate DataType="vm:SettingsViewModel">
+      <v:SettingsView/>
+    </DataTemplate>
+  </UserControl.DataTemplates>
+
+  <Grid RowDefinitions="Auto,*" Background="{DynamicResource AppBg}">
+    <Grid x:Name="TopBar" Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Height="48">
+      <Button Grid.Column="0" Classes="flat ico" Content="{x:Static ic:Icons.List}" FontSize="22" Width="48"
+              VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+              ToolTip.Tip="{loc:T Key=Menu}" Click="OnTogglePane"/>
+      <TextBlock Grid.Column="1" Classes="title" VerticalAlignment="Center" Margin="4,0,0,0"
+                 Text="{Binding HeaderTitle}" TextTrimming="CharacterEllipsis"/>
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,6,0" VerticalAlignment="Center"
+                  IsVisible="{Binding ShowClipboardButtons}">
+        <Button Classes="flat ico" Content="{x:Static ic:Icons.Copy}" ToolTip.Tip="{loc:T Key=Copy}" Click="OnCopy"/>
+        <Button Classes="flat ico" Content="{x:Static ic:Icons.ClipboardText}" ToolTip.Tip="{loc:T Key=Paste}" Click="OnPaste"/>
+      </StackPanel>
+    </Grid>
+
+    <SplitView Grid.Row="1" x:Name="Split"
+               IsPaneOpen="{Binding IsPaneOpen, Mode=TwoWay}"
+               DisplayMode="Overlay"
+               OpenPaneLength="260"
+               PaneBackground="{DynamicResource MenuBg}">
+      <SplitView.Pane>
+        <Grid ClipToBounds="True">
+        <!-- Frosted glass: a snapshot of the page, taken when the menu opens and drawn blurred behind it, over an opaque base
+             so that the sharp page never shows through. It is not interactive. -->
+        <Border x:Name="PaneBlur" IsVisible="False" IsHitTestVisible="False" ClipToBounds="True"
+                Background="{DynamicResource AppBgSolid}">
+          <Image x:Name="PaneCopy" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Fill"/>
+        </Border>
+        <!-- Tint of the menu, drawn over the blurred page: its opacity is what the "menu transparency" setting changes. -->
+        <Border x:Name="PaneTint" IsVisible="False" IsHitTestVisible="False" Background="{DynamicResource MenuBg}"/>
+        <DockPanel>
+          <!-- Settings are always reachable at the bottom of the pane, even when the list scrolls (small landscape screens). -->
+          <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource PanelBorder}" BorderThickness="0,1,0,0" Padding="4">
+            <Button Classes="flat" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="12,10"
+                    Classes.sel="{Binding IsSettingsSelected}" Command="{Binding OpenSettingsCommand}"
+                    Click="OnSettingsClick">
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Classes="ico sub" Text="{x:Static ic:Icons.Gear}" FontSize="20" Width="28" TextAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding SettingsItem.Title}" VerticalAlignment="Center" FontSize="15"/>
+              </StackPanel>
+            </Button>
+          </Border>
+          <ListBox x:Name="NavList" ItemsSource="{Binding NavItems}"
+                   SelectedItem="{Binding ListSelected, Mode=TwoWay}"
+                   Background="Transparent" SelectionChanged="OnNavSelectionChanged">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="12" Margin="4,4">
+                  <TextBlock Classes="ico sub" Text="{Binding Glyph}" FontSize="20" Width="28" TextAlignment="Center" VerticalAlignment="Center"/>
+                  <TextBlock Text="{Binding Title}" VerticalAlignment="Center" FontSize="15"/>
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </DockPanel>
+        </Grid>
+      </SplitView.Pane>
+
+      <ContentControl x:Name="ContentHost" Content="{Binding Current}"/>
+    </SplitView>
+  </Grid>
+</UserControl>

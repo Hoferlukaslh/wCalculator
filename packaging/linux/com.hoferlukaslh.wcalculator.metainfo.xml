@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.hoferlukaslh.wcalculator</id>
+  <name>wCalculator</name>
+  <summary>Calculator with converters, date calculation and currencies</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <description>
+    <p>Standard, scientific and programmer calculator, date calculation and unit and currency converters.
+       A port of the Windows Calculator to Avalonia UI.</p>
+  </description>
+  <launchable type="desktop-id">com.hoferlukaslh.wcalculator.desktop</launchable>
+  <content_rating type="oars-1.1"/>
+  <provides>
+    <binary>wCalculator</binary>
+  </provides>
+  <releases>
+    <release version="@VERSION@" date="@DATE@"/>
+  </releases>
+</component>

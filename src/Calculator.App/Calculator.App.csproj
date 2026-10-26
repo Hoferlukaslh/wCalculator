@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>CalcApp</RootNamespace>
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
+    <ProjectReference Include="..\Calculator.Engine\Calculator.Engine.csproj" />
+    <AvaloniaResource Include="Assets\**" />
+    <EmbeddedResource Include="Localization\Strings\*.json" LogicalName="CalcApp.Strings.%(Filename)%(Extension)" WithCulture="false" />
+  </ItemGroup>
+</Project>

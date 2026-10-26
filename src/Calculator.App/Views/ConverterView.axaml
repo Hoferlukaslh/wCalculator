@@ -1,0 +1,89 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:e="using:Calculator.Engine"
+             xmlns:loc="using:CalcApp.Localization"
+             xmlns:ic="using:CalcApp"
+             x:Class="CalcApp.Views.ConverterView">
+  <UserControl.Styles>
+    <Style Selector="Border.valuebox">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0,0,0,2"/>
+      <Setter Property="CornerRadius" Value="6"/>
+      <Setter Property="Padding" Value="10,6"/>
+    </Style>
+    <Style Selector="Border.valuebox.active">
+      <Setter Property="Background" Value="{DynamicResource PanelBg}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentBg}"/>
+    </Style>
+  </UserControl.Styles>
+
+  <Grid x:Name="Root" RowDefinitions="Auto,*" ColumnDefinitions="*" Margin="8,0,8,8" MaxWidth="640">
+    <StackPanel x:Name="Info" Grid.Row="0" Spacing="0" VerticalAlignment="Top">
+      <Border Classes="valuebox" Classes.active="{Binding IsValue1Active}" Tapped="OnTapValue1" Margin="0,0,0,4">
+        <StackPanel Spacing="4">
+          <Viewbox x:Name="Value1Box" Height="64" StretchDirection="DownOnly" HorizontalAlignment="Right">
+            <TextBlock x:Name="Value1Text" Text="{Binding Value1}" FontSize="44" FontWeight="SemiBold" TextAlignment="Right"/>
+          </Viewbox>
+          <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding Units}" SelectedItem="{Binding Unit1, Mode=TwoWay}"/>
+        </StackPanel>
+      </Border>
+
+      <Border Classes="valuebox" Classes.active="{Binding IsValue2Active}" Tapped="OnTapValue2" Margin="0,0,0,4">
+        <StackPanel Spacing="4">
+          <Viewbox x:Name="Value2Box" Height="64" StretchDirection="DownOnly" HorizontalAlignment="Right">
+            <TextBlock x:Name="Value2Text" Text="{Binding Value2}" FontSize="44" FontWeight="SemiBold" TextAlignment="Right"/>
+          </Viewbox>
+          <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding Units}" SelectedItem="{Binding Unit2, Mode=TwoWay}"/>
+        </StackPanel>
+      </Border>
+
+      <!-- Status of the exchange rates (currency category only) -->
+      <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding IsCurrency}" Margin="10,0,0,2" Height="36">
+        <TextBlock Classes="sub" Text="{Binding CurrencyStatus}" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"/>
+        <Button Grid.Column="1" Classes="flat ico" Content="{x:Static ic:Icons.ArrowClockwise}"
+                ToolTip.Tip="{loc:T Key=CurrencyRefresh}"
+                Command="{Binding RefreshCurrencyCommand}" IsEnabled="{Binding !IsCurrencyBusy}"/>
+      </Grid>
+
+      <!-- Fixed height (the keypad must never move); the list scrolls when there are many values. -->
+      <ScrollViewer x:Name="Suggested" Height="56" Margin="10,0,10,6"
+                    VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding SuggestedValues}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel/>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,12,1">
+                <TextBlock Classes="sub" Text="{Binding Value}" FontSize="12"/>
+                <TextBlock Classes="sub" Text="{Binding Unit}" FontSize="12"/>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </StackPanel>
+
+    <UniformGrid x:Name="Keypad" Grid.Row="1" Columns="4">
+      <Button Classes="key digit" Content="7" Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.Seven}"/>
+      <Button Classes="key digit" Content="8" Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.Eight}"/>
+      <Button Classes="key digit" Content="9" Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.Nine}"/>
+      <Button Classes="key ico" Content="{x:Static ic:Icons.Backspace}" Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.Backspace}"/>
+      <Button Classes="key digit" Content="4" Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.Four}"/>
+      <Button Classes="key digit" Content="5" Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.Five}"/>
+      <Button Classes="key digit" Content="6" Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.Six}"/>
+      <Button Classes="key" Content="C" Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.Clear}"/>
+      <Button Classes="key digit" Content="1" Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.One}"/>
+      <Button Classes="key digit" Content="2" Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.Two}"/>
+      <Button Classes="key digit" Content="3" Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.Three}"/>
+      <Button Classes="key ico" Content="{x:Static ic:Icons.ArrowsDownUp}" Command="{Binding SwapCommand}"/>
+      <Button Classes="key digit ico" Content="{x:Static ic:Icons.PlusMinus}" Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.Negate}" IsEnabled="{Binding SupportsNegative}"/>
+      <Button Classes="key digit" Content="0" Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.Zero}"/>
+      <Button Classes="key digit" Content="." Command="{Binding PressCommand}" CommandParameter="{x:Static e:UnitConversionCommand.Decimal}"/>
+      <Border/>
+    </UniformGrid>
+  </Grid>
+</UserControl>

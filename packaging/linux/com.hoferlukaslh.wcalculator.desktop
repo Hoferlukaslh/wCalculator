@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=wCalculator
+GenericName=Calculator
+GenericName[fr]=Calculatrice
+GenericName[de]=Taschenrechner
+GenericName[es]=Calculadora
+Comment=Standard, scientific and programmer calculator, date calculation and converters
+Comment[fr]=Calculatrice standard, scientifique et programmeur, calcul de dates et convertisseurs
+Exec=wCalculator
+Icon=com.hoferlukaslh.wcalculator
+Terminal=false
+Categories=Utility;Calculator;
+Keywords=calculator;calculatrice;convert;currency;
+StartupWMClass=wCalculator

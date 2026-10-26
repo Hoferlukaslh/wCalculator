@@ -1,0 +1,182 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="AppBg" Color="#F3F3F3"/>
+          <SolidColorBrush x:Key="PanelBg" Color="#FBFBFB"/>
+          <SolidColorBrush x:Key="OverlayBg" Color="#FBFBFB"/>
+          <SolidColorBrush x:Key="MenuBg" Color="#FBFBFB"/>
+          <SolidColorBrush x:Key="AppBgSolid" Color="#F3F3F3"/>
+          <SolidColorBrush x:Key="PanelBorder" Color="#D6D6D6"/>
+          <SolidColorBrush x:Key="Fg" Color="#1A1A1A"/>
+          <SolidColorBrush x:Key="SubFg" Color="#605E5C"/>
+          <SolidColorBrush x:Key="ErrorFg" Color="#C42B1C"/>
+          <SolidColorBrush x:Key="DigitBg" Color="#FFFFFF"/>
+          <SolidColorBrush x:Key="DigitHover" Color="#F6F6F6"/>
+          <SolidColorBrush x:Key="DigitPressed" Color="#E4E4E4"/>
+          <SolidColorBrush x:Key="OpBg" Color="#EDEDED"/>
+          <SolidColorBrush x:Key="OpHover" Color="#E1E1E1"/>
+          <SolidColorBrush x:Key="OpPressed" Color="#D2D2D2"/>
+          <SolidColorBrush x:Key="AccentBg" Color="#0067C0"/>
+          <SolidColorBrush x:Key="AccentHover" Color="#1A78C9"/>
+          <SolidColorBrush x:Key="AccentPressed" Color="#3787CC"/>
+          <SolidColorBrush x:Key="AccentFg" Color="#FFFFFF"/>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="AppBg" Color="#202020"/>
+          <SolidColorBrush x:Key="PanelBg" Color="#2B2B2B"/>
+          <SolidColorBrush x:Key="OverlayBg" Color="#2B2B2B"/>
+          <SolidColorBrush x:Key="MenuBg" Color="#2B2B2B"/>
+          <SolidColorBrush x:Key="AppBgSolid" Color="#202020"/>
+          <SolidColorBrush x:Key="PanelBorder" Color="#404040"/>
+          <SolidColorBrush x:Key="Fg" Color="#FFFFFF"/>
+          <SolidColorBrush x:Key="SubFg" Color="#A8A8A8"/>
+          <SolidColorBrush x:Key="ErrorFg" Color="#FF99A4"/>
+          <SolidColorBrush x:Key="DigitBg" Color="#3B3B3B"/>
+          <SolidColorBrush x:Key="DigitHover" Color="#343434"/>
+          <SolidColorBrush x:Key="DigitPressed" Color="#2A2A2A"/>
+          <SolidColorBrush x:Key="OpBg" Color="#323232"/>
+          <SolidColorBrush x:Key="OpHover" Color="#3B3B3B"/>
+          <SolidColorBrush x:Key="OpPressed" Color="#272727"/>
+          <SolidColorBrush x:Key="AccentBg" Color="#4CC2FF"/>
+          <SolidColorBrush x:Key="AccentHover" Color="#47B1E8"/>
+          <SolidColorBrush x:Key="AccentPressed" Color="#42A1D2"/>
+          <SolidColorBrush x:Key="AccentFg" Color="#000000"/>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+      <!-- Phosphor icons (https://phosphoricons.com, MIT). The glyphs are listed in Icons.cs. -->
+      <FontFamily x:Key="PhosphorFont">avares://Calculator.App/Assets/Fonts/Phosphor/Phosphor.ttf#Phosphor</FontFamily>
+      <FontFamily x:Key="PhosphorBoldFont">avares://Calculator.App/Assets/Fonts/Phosphor/Phosphor-Bold.ttf#Phosphor-Bold</FontFamily>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+  <!-- Icon font: add the class "ico" to a Button or a TextBlock whose content is an icon of Icons.cs -->
+  <Style Selector="Button.ico">
+    <Setter Property="FontFamily" Value="{DynamicResource PhosphorFont}"/>
+  </Style>
+  <Style Selector="TextBlock.ico">
+    <Setter Property="FontFamily" Value="{DynamicResource PhosphorFont}"/>
+  </Style>
+  <Style Selector="Button.ico.bold">
+    <Setter Property="FontFamily" Value="{DynamicResource PhosphorBoldFont}"/>
+  </Style>
+  <Style Selector="TextBlock.ico.bold">
+    <Setter Property="FontFamily" Value="{DynamicResource PhosphorBoldFont}"/>
+  </Style>
+  <Style Selector="Button.key.ico">
+    <Setter Property="FontSize" Value="22"/>
+  </Style>
+  <Style Selector="Button.flat.ico">
+    <Setter Property="FontSize" Value="20"/>
+    <Setter Property="Padding" Value="10,6"/>
+  </Style>
+
+  <!-- Calculator keys -->
+  <Style Selector="Button.key">
+    <Setter Property="Focusable" Value="False"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="VerticalAlignment" Value="Stretch"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Margin" Value="1"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="FontSize" Value="17"/>
+    <Setter Property="CornerRadius" Value="5"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+    <Setter Property="Background" Value="{DynamicResource OpBg}"/>
+  </Style>
+  <Style Selector="Button.key:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource OpHover}"/>
+    <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+  </Style>
+  <Style Selector="Button.key:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource OpPressed}"/>
+    <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+  </Style>
+  <Style Selector="Button.key:disabled /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource OpBg}"/>
+    <Setter Property="Foreground" Value="{DynamicResource SubFg}"/>
+    <Setter Property="Opacity" Value="0.45"/>
+  </Style>
+
+  <Style Selector="Button.key.digit">
+    <Setter Property="Background" Value="{DynamicResource DigitBg}"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="FontSize" Value="20"/>
+  </Style>
+  <Style Selector="Button.key.digit:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DigitHover}"/>
+  </Style>
+  <Style Selector="Button.key.digit:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DigitPressed}"/>
+  </Style>
+  <Style Selector="Button.key.digit:disabled /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DigitBg}"/>
+  </Style>
+
+  <Style Selector="Button.key.accent">
+    <Setter Property="Background" Value="{DynamicResource AccentBg}"/>
+    <Setter Property="Foreground" Value="{DynamicResource AccentFg}"/>
+  </Style>
+  <Style Selector="Button.key.accent:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AccentHover}"/>
+    <Setter Property="Foreground" Value="{DynamicResource AccentFg}"/>
+  </Style>
+  <Style Selector="Button.key.accent:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AccentPressed}"/>
+    <Setter Property="Foreground" Value="{DynamicResource AccentFg}"/>
+  </Style>
+
+  <Style Selector="Button.key.sel /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AccentBg}"/>
+    <Setter Property="Foreground" Value="{DynamicResource AccentFg}"/>
+  </Style>
+
+  <Style Selector="Button.key.small">
+    <Setter Property="FontSize" Value="14"/>
+  </Style>
+
+  <!-- Memory / flat text buttons -->
+  <Style Selector="Button.flat">
+    <Setter Property="Focusable" Value="False"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="10,4"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="FontSize" Value="14"/>
+  </Style>
+  <Style Selector="Button.flat:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource OpHover}"/>
+    <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+  </Style>
+  <Style Selector="Button.flat:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource OpPressed}"/>
+    <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+  </Style>
+  <Style Selector="Button.flat:disabled /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{DynamicResource SubFg}"/>
+    <Setter Property="Opacity" Value="0.5"/>
+  </Style>
+  <Style Selector="Button.flat.sel /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource OpHover}"/>
+    <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+  </Style>
+
+  <Style Selector="TextBlock.sub">
+    <Setter Property="Foreground" Value="{DynamicResource SubFg}"/>
+  </Style>
+  <Style Selector="TextBlock.title">
+    <Setter Property="FontSize" Value="20"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+  </Style>
+</Styles>

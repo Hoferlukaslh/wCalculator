@@ -1,0 +1,271 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:e="using:Calculator.Engine"
+             xmlns:loc="using:CalcApp.Localization"
+             xmlns:ic="using:CalcApp"
+             x:Class="CalcApp.Views.CalculatorView">
+  <UserControl.Styles>
+    <Style Selector="TextBlock.disp">
+      <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="FontSize" Value="54"/>
+    </Style>
+    <Style Selector="TextBlock.disp.err">
+      <Setter Property="Foreground" Value="{DynamicResource ErrorFg}"/>
+    </Style>
+  </UserControl.Styles>
+
+  <Grid x:Name="Root" RowDefinitions="Auto,*" ColumnDefinitions="*" Margin="8,0,8,8">
+
+    <!-- Display -->
+    <Grid x:Name="DisplayPanel" Grid.Row="0" RowDefinitions="Auto,Auto,Auto,Auto" Margin="4,0,4,6">
+      <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+        <TextBlock Grid.Column="0" Classes="sub" Text="{Binding OpenParenText}" IsVisible="{Binding HasOpenParen}"
+                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+        <TextBlock Grid.Column="1" Classes="sub" Text="{Binding ExpressionText}" FontSize="14" MinHeight="22"
+                   HorizontalAlignment="Right" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+        <Button Grid.Column="2" Classes="flat ico" Content="{x:Static ic:Icons.ClockCounterClockwise}" IsVisible="{Binding HasHistory}"
+                ToolTip.Tip="{loc:T Key=History}"
+                Command="{Binding ToggleHistoryCommand}" Classes.sel="{Binding IsHistoryPanelOpen}"/>
+      </Grid>
+
+      <Viewbox x:Name="DispBox" Grid.Row="1" Height="80" StretchDirection="DownOnly" HorizontalAlignment="Right" Stretch="Uniform">
+        <TextBlock x:Name="DispText" Classes="disp" Classes.err="{Binding IsError}" Text="{Binding DisplayValue}"
+                   TextAlignment="Right" Margin="0,2"/>
+      </Viewbox>
+
+      <Grid Grid.Row="2" ColumnDefinitions="*,*,*,*,*,*" Margin="0,2">
+        <Button Grid.Column="0" Classes="flat" Content="MC" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Command="{Binding MemoryClearAllCommand}" IsEnabled="{Binding HasMemory}"/>
+        <Button Grid.Column="1" Classes="flat" Content="MR" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Command="{Binding MemoryRecallCommand}" IsEnabled="{Binding HasMemory}"/>
+        <Button Grid.Column="2" Classes="flat" Content="M+" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Command="{Binding MemoryAddCommand}"/>
+        <Button Grid.Column="3" Classes="flat" Content="M−" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Command="{Binding MemorySubtractCommand}"/>
+        <Button Grid.Column="4" Classes="flat" Content="MS" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Command="{Binding MemoryStoreCommand}"/>
+        <Button Grid.Column="5" Classes="flat" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Command="{Binding ToggleMemoryCommand}" Classes.sel="{Binding IsMemoryPanelOpen}">
+          <StackPanel Orientation="Horizontal" Spacing="1">
+            <TextBlock Text="M"/>
+            <TextBlock Classes="ico" Text="{x:Static ic:Icons.CaretDown}" FontSize="12" VerticalAlignment="Center"/>
+          </StackPanel>
+        </Button>
+      </Grid>
+
+      <StackPanel Grid.Row="3" IsVisible="{Binding IsProgrammer}" Spacing="0" Margin="0,2">
+        <Button Classes="flat" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="8,1"
+                Classes.sel="{Binding IsHexRadix}"
+                Command="{Binding SetRadixCommand}" CommandParameter="{x:Static e:RadixType.Hex}">
+          <Grid ColumnDefinitions="48,*">
+            <TextBlock Text="HEX" Classes="sub" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="{Binding HexText}" HorizontalAlignment="Right" FontSize="15" TextTrimming="CharacterEllipsis"/>
+          </Grid>
+        </Button>
+        <Button Classes="flat" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="8,1"
+                Classes.sel="{Binding IsDecRadix}"
+                Command="{Binding SetRadixCommand}" CommandParameter="{x:Static e:RadixType.Decimal}">
+          <Grid ColumnDefinitions="48,*">
+            <TextBlock Text="DEC" Classes="sub" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="{Binding DecText}" HorizontalAlignment="Right" FontSize="15" TextTrimming="CharacterEllipsis"/>
+          </Grid>
+        </Button>
+        <Button Classes="flat" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="8,1"
+                Classes.sel="{Binding IsOctRadix}"
+                Command="{Binding SetRadixCommand}" CommandParameter="{x:Static e:RadixType.Octal}">
+          <Grid ColumnDefinitions="48,*">
+            <TextBlock Text="OCT" Classes="sub" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="{Binding OctText}" HorizontalAlignment="Right" FontSize="15" TextTrimming="CharacterEllipsis"/>
+          </Grid>
+        </Button>
+        <Button Classes="flat" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="8,1"
+                Classes.sel="{Binding IsBinRadix}"
+                Command="{Binding SetRadixCommand}" CommandParameter="{x:Static e:RadixType.Binary}">
+          <Grid ColumnDefinitions="48,*">
+            <TextBlock Text="BIN" Classes="sub" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="{Binding BinText}" HorizontalAlignment="Right" FontSize="15" TextTrimming="CharacterEllipsis"/>
+          </Grid>
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <!-- Keypads -->
+    <Grid Grid.Row="1" x:Name="PadHost" ColumnDefinitions="*,*" RowDefinitions="*,*">
+      <Grid x:Name="SidePanel" IsVisible="{Binding HasSidePanel}">
+        <UniformGrid Columns="5" IsVisible="{Binding IsScientific}">
+      <Button Classes="key small" Content="2nd" Command="{Binding ToggleSecondCommand}" Classes.sel="{Binding Is2nd}"/>
+      <Button Classes="key small" Content="π" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandPI}"/>
+      <Button Classes="key small" Content="e" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandEuler}"/>
+      <Button Classes="key small" Content="{Binding AngleLabel}" Command="{Binding CycleAngleCommand}"/>
+      <Button Classes="key small" Content="F-E" Command="{Binding ToggleFECommand}" Classes.sel="{Binding IsFE}"/>
+      <Button Classes="key small" Content="{Binding PowLabel}" Command="{Binding PressCommand}" CommandParameter="{Binding PowCmd}"/>
+      <Button Classes="key small" Content="{Binding TenPowLabel}" Command="{Binding PressCommand}" CommandParameter="{Binding TenPowCmd}"/>
+      <Button Classes="key small" Content="{Binding LogLabel}" Command="{Binding PressCommand}" CommandParameter="{Binding LogCmd}"/>
+      <Button Classes="key small" Content="{Binding LnLabel}" Command="{Binding PressCommand}" CommandParameter="{Binding LnCmd}"/>
+      <Button Classes="key small" Content="mod" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandMOD}"/>
+      <Button Classes="key small" Content="{Binding SinLabel}" Command="{Binding PressCommand}" CommandParameter="{Binding SinCmd}"/>
+      <Button Classes="key small" Content="{Binding CosLabel}" Command="{Binding PressCommand}" CommandParameter="{Binding CosCmd}"/>
+      <Button Classes="key small" Content="{Binding TanLabel}" Command="{Binding PressCommand}" CommandParameter="{Binding TanCmd}"/>
+      <Button Classes="key small" Content="hyp" Command="{Binding ToggleHypCommand}" Classes.sel="{Binding IsHyp}"/>
+      <Button Classes="key small" Content="rand" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandRand}"/>
+      <Button Classes="key small" Content="{Binding SecLabel}" Command="{Binding PressCommand}" CommandParameter="{Binding SecCmd}"/>
+      <Button Classes="key small" Content="{Binding CscLabel}" Command="{Binding PressCommand}" CommandParameter="{Binding CscCmd}"/>
+      <Button Classes="key small" Content="{Binding CotLabel}" Command="{Binding PressCommand}" CommandParameter="{Binding CotCmd}"/>
+      <Button Classes="key small" Content="dms" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandDMS}"/>
+      <Button Classes="key small" Content="deg" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandDegrees}"/>
+      <Button Classes="key small" Content="|x|" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandAbs}"/>
+      <Button Classes="key small" Content="⌊x⌋" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandFloor}"/>
+      <Button Classes="key small" Content="⌈x⌉" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandCeil}"/>
+      <Button Classes="key small" Content="exp" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandEXP}"/>
+      <Button Classes="key small" Content="n!" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandFAC}"/>
+      <Button Classes="key small" Content="{Binding OpenParenText}" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandOPENP}"/>
+      <Button Classes="key small" Content=")" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandCLOSEP}"/>
+        </UniformGrid>
+        <UniformGrid Columns="5" IsVisible="{Binding IsProgrammerPanelVisible}">
+      <Button Classes="key small" Content="&lt;&lt;" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandLSHF}"/>
+      <Button Classes="key small" Content="&gt;&gt;" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandRSHF}"/>
+      <Button Classes="key small" Content="&gt;&gt;&gt;" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandRSHFL}"/>
+      <Button Classes="key small" Content="RoL" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandROL}"/>
+      <Button Classes="key small" Content="RoR" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandROR}"/>
+      <Button Classes="key small" Content="RoL c" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandROLC}"/>
+      <Button Classes="key small" Content="RoR c" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandRORC}"/>
+      <Button Classes="key small" Content="NOT" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandNot}"/>
+      <Button Classes="key small" Content="AND" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandAnd}"/>
+      <Button Classes="key small" Content="NAND" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandNand}"/>
+      <Button Classes="key small" Content="OR" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandOR}"/>
+      <Button Classes="key small" Content="NOR" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandNor}"/>
+      <Button Classes="key small" Content="XOR" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandXor}"/>
+      <Button Classes="key small" Content="mod" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandMOD}"/>
+      <Button Classes="key small" Content="{Binding WordSizeLabel}" Command="{Binding CycleWordSizeCommand}"/>
+      <Button Classes="key small digit" Content="A" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandA}" IsEnabled="{Binding IsHexRadix}"/>
+      <Button Classes="key small digit" Content="B" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandB}" IsEnabled="{Binding IsHexRadix}"/>
+      <Button Classes="key small digit" Content="C" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandC}" IsEnabled="{Binding IsHexRadix}"/>
+      <Button Classes="key small digit" Content="D" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandD}" IsEnabled="{Binding IsHexRadix}"/>
+      <Button Classes="key small" Content="{Binding OpenParenText}" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandOPENP}"/>
+      <Button Classes="key small digit" Content="E" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandE}" IsEnabled="{Binding IsHexRadix}"/>
+      <Button Classes="key small digit" Content="F" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandF}" IsEnabled="{Binding IsHexRadix}"/>
+      <Button Classes="key small" Content=")" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandCLOSEP}"/>
+      <Button Classes="key small" Content="bits" Command="{Binding ToggleBitFlipCommand}"/>
+        </UniformGrid>
+        <Grid IsVisible="{Binding IsBitPanelVisible}" RowDefinitions="*,Auto">
+          <ItemsControl ItemsSource="{Binding Bits}" VerticalAlignment="Center">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <UniformGrid Columns="{Binding $parent[UserControl].DataContext.BitColumns}"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Button Classes="key digit small" Classes.sel="{Binding IsSet}" Content="{Binding Text}" Height="40"
+                        Command="{Binding $parent[UserControl].DataContext.ToggleBitCommand}" CommandParameter="{Binding}"/>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <UniformGrid Grid.Row="1" Columns="3" Height="44">
+            <Button Classes="key small" Content="123" Command="{Binding ToggleBitFlipCommand}"/>
+            <Button Classes="key small" Command="{Binding CycleWordSizeCommand}" Content="{Binding WordSizeLabel}"/>
+            <Button Classes="key small accent" Content="C" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandCLEAR}"/>
+          </UniformGrid>
+        </Grid>
+      </Grid>
+
+      <UniformGrid x:Name="MainPad" Columns="4" IsVisible="{Binding IsKeypadVisible}">
+      <Button Classes="key ico" Content="{x:Static ic:Icons.Percent}" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandPERCENT}" IsEnabled="{Binding IsStandardOrScientific}"/>
+      <Button Classes="key" Content="CE" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandCENTR}"/>
+      <Button Classes="key" Content="C" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandCLEAR}"/>
+      <Button Classes="key ico" Content="{x:Static ic:Icons.Backspace}" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandBACK}"/>
+      <Button Classes="key" Content="1/x" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandREC}" IsEnabled="{Binding IsStandardOrScientific}"/>
+      <Button Classes="key" Content="{Binding SquareLabel}" Command="{Binding PressCommand}" CommandParameter="{Binding SquareCmd}" IsEnabled="{Binding IsStandardOrScientific}"/>
+      <Button Classes="key" Content="{Binding RootLabel}" Command="{Binding PressCommand}" CommandParameter="{Binding RootCmd}" IsEnabled="{Binding IsStandardOrScientific}"/>
+      <Button Classes="key ico" Content="{x:Static ic:Icons.Divide}" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandDIV}"/>
+      <Button Classes="key digit" Content="7" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.Command7}" IsEnabled="{Binding IsRadixAtLeastOctal}"/>
+      <Button Classes="key digit" Content="8" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.Command8}" IsEnabled="{Binding IsRadixAtLeastDecimal}"/>
+      <Button Classes="key digit" Content="9" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.Command9}" IsEnabled="{Binding IsRadixAtLeastDecimal}"/>
+      <Button Classes="key ico" Content="{x:Static ic:Icons.X}" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandMUL}"/>
+      <Button Classes="key digit" Content="4" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.Command4}" IsEnabled="{Binding IsRadixAtLeastOctal}"/>
+      <Button Classes="key digit" Content="5" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.Command5}" IsEnabled="{Binding IsRadixAtLeastOctal}"/>
+      <Button Classes="key digit" Content="6" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.Command6}" IsEnabled="{Binding IsRadixAtLeastOctal}"/>
+      <Button Classes="key ico" Content="{x:Static ic:Icons.Minus}" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandSUB}"/>
+      <Button Classes="key digit" Content="1" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.Command1}"/>
+      <Button Classes="key digit" Content="2" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.Command2}" IsEnabled="{Binding IsRadixAtLeastOctal}"/>
+      <Button Classes="key digit" Content="3" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.Command3}" IsEnabled="{Binding IsRadixAtLeastOctal}"/>
+      <Button Classes="key ico" Content="{x:Static ic:Icons.Plus}" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandADD}"/>
+      <Button Classes="key ico" Content="{x:Static ic:Icons.PlusMinus}" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandSIGN}" IsEnabled="{Binding IsDecRadix}"/>
+      <Button Classes="key digit" Content="0" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.Command0}"/>
+      <Button Classes="key digit" Content="." Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandPNT}" IsEnabled="{Binding IsDecimalPointEnabled}"/>
+      <Button Classes="key accent ico" Content="{x:Static ic:Icons.EqualsSign}" Command="{Binding PressCommand}" CommandParameter="{x:Static e:Command.CommandEQU}"/>
+      </UniformGrid>
+    </Grid>
+
+    <!-- History / memory flyout -->
+    <Border x:Name="HistoryFlyout" Grid.Row="1" IsVisible="{Binding IsAnyPanelOpen}" Background="{DynamicResource OverlayBg}"
+            BorderBrush="{DynamicResource PanelBorder}" BorderThickness="1" CornerRadius="6" Padding="6">
+      <Grid RowDefinitions="Auto,*">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+          <TextBlock Classes="title" FontSize="16" VerticalAlignment="Center" Margin="4,0"
+                     Text="{loc:T Key=History}" IsVisible="{Binding IsHistoryPanelOpen}"/>
+          <TextBlock Classes="title" FontSize="16" VerticalAlignment="Center" Margin="4,0"
+                     Text="{loc:T Key=Memory}" IsVisible="{Binding IsMemoryPanelOpen}"/>
+          <Button Grid.Column="1" Classes="flat ico" Content="{x:Static ic:Icons.Trash}" IsVisible="{Binding IsHistoryPanelOpen}"
+                  ToolTip.Tip="{loc:T Key=ClearHistory}" Command="{Binding HistoryClearCommand}"/>
+          <Button Grid.Column="1" Classes="flat ico" Content="{x:Static ic:Icons.Trash}" IsVisible="{Binding IsMemoryPanelOpen}"
+                  ToolTip.Tip="{loc:T Key=ClearMemory}" Command="{Binding MemoryClearAllCommand}"/>
+        </Grid>
+
+        <Grid Grid.Row="1" IsVisible="{Binding IsHistoryPanelOpen}">
+          <TextBlock Classes="sub" Text="{loc:T Key=HistoryEmpty}" IsVisible="{Binding IsHistoryEmpty}"
+                     TextWrapping="Wrap" Margin="6,12"/>
+          <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding HistoryItems}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid ColumnDefinitions="*,Auto">
+                    <Button Classes="flat" HorizontalAlignment="Stretch" HorizontalContentAlignment="Right"
+                            Command="{Binding $parent[UserControl].DataContext.HistoryItemSelectCommand}"
+                            CommandParameter="{Binding}">
+                      <StackPanel>
+                        <TextBlock Classes="sub" Text="{Binding Expression}" FontSize="13" TextAlignment="Right" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding Result}" FontSize="22" FontWeight="SemiBold" TextAlignment="Right" TextWrapping="Wrap"/>
+                      </StackPanel>
+                    </Button>
+                    <Button Grid.Column="1" Classes="flat ico" Content="{x:Static ic:Icons.X}" VerticalAlignment="Center"
+                            Command="{Binding $parent[UserControl].DataContext.HistoryItemDeleteCommand}"
+                            CommandParameter="{Binding}"/>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Grid>
+
+        <Grid Grid.Row="1" IsVisible="{Binding IsMemoryPanelOpen}">
+          <TextBlock Classes="sub" Text="{loc:T Key=MemoryEmpty}" IsVisible="{Binding IsMemoryEmpty}"
+                     TextWrapping="Wrap" Margin="6,12"/>
+          <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding MemoryItems}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid ColumnDefinitions="*" Margin="0,4">
+                    <StackPanel>
+                      <Button Classes="flat" HorizontalAlignment="Stretch" HorizontalContentAlignment="Right"
+                              Command="{Binding $parent[UserControl].DataContext.MemoryItemLoadCommand}"
+                              CommandParameter="{Binding}">
+                        <TextBlock Text="{Binding Value}" FontSize="22" FontWeight="SemiBold" TextAlignment="Right" TextWrapping="Wrap"/>
+                      </Button>
+                      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Classes="flat" Content="MC" Command="{Binding $parent[UserControl].DataContext.MemoryItemClearCommand}" CommandParameter="{Binding}"/>
+                        <Button Classes="flat" Content="M+" Command="{Binding $parent[UserControl].DataContext.MemoryItemAddCommand}" CommandParameter="{Binding}"/>
+                        <Button Classes="flat" Content="M−" Command="{Binding $parent[UserControl].DataContext.MemoryItemSubtractCommand}" CommandParameter="{Binding}"/>
+                      </StackPanel>
+                    </StackPanel>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Grid>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

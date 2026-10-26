@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="using:CalcApp.Localization"
+             x:Class="CalcApp.Views.DateView">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel x:Name="PageRoot" Margin="16,8,16,16" Spacing="14" MaxWidth="560" HorizontalAlignment="Stretch">
+      <ComboBox HorizontalAlignment="Stretch" SelectedIndex="{Binding ModeIndex, Mode=TwoWay}">
+        <ComboBoxItem Content="{loc:T Key=Difference}"/>
+        <ComboBoxItem Content="{loc:T Key=AddSubtract}"/>
+      </ComboBox>
+
+      <!-- Difference between two dates -->
+      <Grid x:Name="DiffGrid" IsVisible="{Binding IsDateDiffMode}" RowDefinitions="Auto,Auto" ColumnDefinitions="*">
+       <StackPanel x:Name="DiffInputs" Spacing="14">
+        <StackPanel Spacing="4">
+          <TextBlock Classes="sub" Text="{loc:T Key=From}"/>
+          <DatePicker x:Name="FromPicker" HorizontalAlignment="Stretch" SelectedDate="{Binding FromDate, Mode=TwoWay}"/>
+        </StackPanel>
+        <StackPanel Spacing="4">
+          <TextBlock Classes="sub" Text="{loc:T Key=To}"/>
+          <DatePicker x:Name="ToPicker" HorizontalAlignment="Stretch" SelectedDate="{Binding ToDate, Mode=TwoWay}"/>
+        </StackPanel>
+       </StackPanel>
+       <StackPanel x:Name="DiffOutput" Grid.Row="1" Spacing="4" Margin="0,22,0,0">
+          <TextBlock Classes="sub" Text="{loc:T Key=DifferenceLabel}"/>
+          <TextBlock Text="{Binding DiffResult}" FontSize="30" FontWeight="SemiBold" TextWrapping="Wrap"/>
+          <TextBlock Classes="sub" Text="{Binding DiffResultInDays}" IsVisible="{Binding HasDiffResultInDays}" FontSize="16"/>
+       </StackPanel>
+      </Grid>
+
+      <!-- Add / subtract -->
+      <Grid x:Name="AddGrid" IsVisible="{Binding IsAddSubtractMode}" RowDefinitions="Auto,Auto" ColumnDefinitions="*">
+       <StackPanel x:Name="AddInputs" Spacing="14">
+        <StackPanel Spacing="4">
+          <TextBlock Classes="sub" Text="{loc:T Key=FromAddSubtract}"/>
+          <DatePicker x:Name="StartPicker" HorizontalAlignment="Stretch" SelectedDate="{Binding StartDate, Mode=TwoWay}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="20">
+          <RadioButton GroupName="addsub" Content="{loc:T Key=Add}" IsChecked="{Binding IsAddMode, Mode=TwoWay}"/>
+          <RadioButton GroupName="addsub" Content="{loc:T Key=Subtract}" IsChecked="{Binding IsSubtractMode, Mode=TwoWay}"/>
+        </StackPanel>
+        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+          <StackPanel Grid.Column="0" Spacing="4">
+            <TextBlock Classes="sub" Text="{loc:T Key=Years}"/>
+            <NumericUpDown Minimum="0" Maximum="999" Increment="1" FormatString="0" Value="{Binding YearsOffset, Mode=TwoWay}"/>
+          </StackPanel>
+          <StackPanel Grid.Column="1" Spacing="4">
+            <TextBlock Classes="sub" Text="{loc:T Key=Months}"/>
+            <NumericUpDown Minimum="0" Maximum="999" Increment="1" FormatString="0" Value="{Binding MonthsOffset, Mode=TwoWay}"/>
+          </StackPanel>
+          <StackPanel Grid.Column="2" Spacing="4">
+            <TextBlock Classes="sub" Text="{loc:T Key=Days}"/>
+            <NumericUpDown Minimum="0" Maximum="999" Increment="1" FormatString="0" Value="{Binding DaysOffset, Mode=TwoWay}"/>
+          </StackPanel>
+        </Grid>
+       </StackPanel>
+       <StackPanel x:Name="AddOutput" Grid.Row="1" Spacing="4" Margin="0,22,0,0">
+          <TextBlock Classes="sub" Text="{loc:T Key=DateLabel}"/>
+          <TextBlock Text="{Binding DateResultText}" FontSize="28" FontWeight="SemiBold" TextWrapping="Wrap"/>
+       </StackPanel>
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

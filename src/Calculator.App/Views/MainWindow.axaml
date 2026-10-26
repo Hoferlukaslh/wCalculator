@@ -1,0 +1,11 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:v="using:CalcApp.Views"
+        x:Class="CalcApp.Views.MainWindow"
+        Title="wCalculator"
+        Icon="avares://Calculator.App/Assets/icon.png"
+        Width="420" Height="680" MinWidth="320" MinHeight="300"
+        Background="Transparent"
+        TransparencyLevelHint="AcrylicBlur, Blur, Transparent">
+  <v:MainView/>
+</Window>

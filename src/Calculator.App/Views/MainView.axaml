@@ -5,6 +5,7 @@
              xmlns:ic="using:CalcApp"
              xmlns:loc="using:CalcApp.Localization"
              x:Class="CalcApp.Views.MainView"
+             x:DataType="vm:MainViewModel"
              Focusable="True"
              TextInput="OnTextInput"
              KeyDown="OnKeyDown">
@@ -68,7 +69,7 @@
                    SelectedItem="{Binding ListSelected, Mode=TwoWay}"
                    Background="Transparent" SelectionChanged="OnNavSelectionChanged">
             <ListBox.ItemTemplate>
-              <DataTemplate>
+              <DataTemplate x:DataType="vm:NavItem">
                 <StackPanel Orientation="Horizontal" Spacing="12" Margin="4,4">
                   <TextBlock Classes="ico sub" Text="{Binding Glyph}" FontSize="20" Width="28" TextAlignment="Center" VerticalAlignment="Center"/>
                   <TextBlock Text="{Binding Title}" VerticalAlignment="Center" FontSize="15"/>

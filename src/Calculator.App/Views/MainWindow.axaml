@@ -3,7 +3,7 @@
         xmlns:v="using:CalcApp.Views"
         x:Class="CalcApp.Views.MainWindow"
         Title="wCalculator"
-        Icon="avares://Calculator.App/Assets/icon.png"
+        Icon="avares://Calculator.App/Assets/icon-window.png"
         Width="420" Height="680" MinWidth="320" MinHeight="300"
         Background="Transparent"
         TransparencyLevelHint="AcrylicBlur, Blur, Transparent">

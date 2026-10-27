@@ -5,6 +5,6 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <AvaloniaVersion>11.3.*</AvaloniaVersion>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 </Project>

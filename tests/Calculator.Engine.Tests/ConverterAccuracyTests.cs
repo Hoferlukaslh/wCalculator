@@ -143,6 +143,17 @@ public class ConverterAccuracyTests
         Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems.Take(10)));
     }
 
+    [Fact]
+    public void Ordered_categories_list_matches_what_the_loader_builds()
+    {
+        // MainViewModel builds its navigation list from UnitConverterDataLoader.OrderedCategories (so that the converter
+        // is only created when it is opened): the list must stay in sync with the categories the loader really builds.
+        UnitConverterDataLoader loader = LoadData();
+        Assert.Equal(
+            UnitConverterDataLoader.OrderedCategories.Select(c => (int)c).ToArray(),
+            loader.GetOrderedCategories().Select(c => c.Id).ToArray());
+    }
+
     // ---- 3. what the user sees ---------------------------------------------------------------------------------
 
     public static IEnumerable<object[]> DisplayedConversions()

@@ -2,7 +2,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ic="using:CalcApp"
              xmlns:loc="using:CalcApp.Localization"
-             x:Class="CalcApp.Views.SettingsView">
+             xmlns:vm="using:CalcApp.ViewModels"
+             x:Class="CalcApp.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
   <UserControl.Styles>
     <Style Selector="Border.card">
       <Setter Property="Background" Value="{DynamicResource OverlayBg}"/>
@@ -76,9 +78,9 @@
               </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
-              <DataTemplate>
+              <DataTemplate x:DataType="vm:AccentSwatch">
                 <Button Classes="flat swatch" Classes.sel="{Binding IsSelected}"
-                        Command="{Binding $parent[UserControl].DataContext.SelectAccentCommand}"
+                        Command="{Binding $parent[UserControl].((vm:SettingsViewModel)DataContext).SelectAccentCommand}"
                         CommandParameter="{Binding}">
                   <Grid>
                     <Border Classes="dot" Width="34" Height="34" CornerRadius="17" Background="{Binding Brush}"/>

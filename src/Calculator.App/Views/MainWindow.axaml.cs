@@ -1,6 +1,9 @@
 using System;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
 using CalcApp.Services;
 
 namespace CalcApp.Views;
@@ -9,8 +12,26 @@ public partial class MainWindow : Window
 {
     public MainWindow()
     {
+        StartupTrace.Mark("window-base-created"); // the Window base class is built: the native window exists
         InitializeComponent();
-        Opened += (_, _) => UpdateTransparencySupport();
+        StartupTrace.Mark("window-xaml-loaded");
+        Opened += (_, _) =>
+        {
+            UpdateTransparencySupport();
+            StartupTrace.Mark("window-opened");
+
+            // Background runs after the first layout and render passes: "first-idle" is when the window is really usable.
+            Dispatcher.UIThread.Post(
+                () =>
+                {
+                    StartupTrace.Mark("first-idle");
+                    if (StartupTrace.ExitAfterStartup && Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                    {
+                        desktop.Shutdown();
+                    }
+                },
+                DispatcherPriority.Background);
+        };
         AttachedToVisualTree += (_, _) => AppearanceManager.Changed += ApplyEffect;
         DetachedFromVisualTree += (_, _) => AppearanceManager.Changed -= ApplyEffect;
         ApplyEffect();
@@ -22,12 +43,21 @@ public partial class MainWindow : Window
     /// </summary>
     private void ApplyEffect()
     {
-        TransparencyLevelHint = SettingsService.Instance.Current.Effect switch
+        WindowTransparencyLevel[] wanted = SettingsService.Instance.Current.Effect switch
         {
             WindowEffect.None => new[] { WindowTransparencyLevel.Transparent },
             WindowEffect.Blur => new[] { WindowTransparencyLevel.Blur, WindowTransparencyLevel.Transparent },
             _ => new[] { WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Blur, WindowTransparencyLevel.Transparent },
         };
+
+        // A new array counts as a change even with the same content, and the window system is then asked again:
+        // only set the hint when the list differs from the current one.
+        if (TransparencyLevelHint is { } current && current.SequenceEqual(wanted))
+        {
+            return;
+        }
+
+        TransparencyLevelHint = wanted;
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

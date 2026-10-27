@@ -3,7 +3,9 @@
              xmlns:e="using:Calculator.Engine"
              xmlns:loc="using:CalcApp.Localization"
              xmlns:ic="using:CalcApp"
-             x:Class="CalcApp.Views.ConverterView">
+             xmlns:vm="using:CalcApp.ViewModels"
+             x:Class="CalcApp.Views.ConverterView"
+             x:DataType="vm:ConverterViewModel">
   <UserControl.Styles>
     <Style Selector="Border.valuebox">
       <Setter Property="Background" Value="Transparent"/>
@@ -56,7 +58,7 @@
             </ItemsPanelTemplate>
           </ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
-            <DataTemplate>
+            <DataTemplate x:DataType="vm:SuggestedItem">
               <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,12,1">
                 <TextBlock Classes="sub" Text="{Binding Value}" FontSize="12"/>
                 <TextBlock Classes="sub" Text="{Binding Unit}" FontSize="12"/>

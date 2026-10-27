@@ -75,6 +75,36 @@ dotnet test tests/Calculator.Engine.Tests      # tests du moteur
 dotnet run  --project src/Calculator.Desktop   # lancer sur le poste
 ```
 
+### Démarrage rapide
+
+* **Desktop** : les installeurs sont publiés en **ReadyToRun** (code déjà compilé en natif, au lieu d'être compilé à chaque lancement)
+  et sans TieredPGO. Les pages Dates, Convertisseurs et Paramètres ne sont créées qu'à leur première ouverture.
+  Par défaut en mode **composite** (le framework et l'application dans une même image) : 321 ms jusqu'à une fenêtre utilisable, contre 445 ms en ReadyToRun
+  simple et 866 ms en IL pur (mesures de `bench-startup.sh`), au prix d'installeurs plus gros. `READY_TO_RUN_COMPOSITE=0 ./build.sh` donne le ReadyToRun simple,
+  `READY_TO_RUN=0 ./build.sh` une version IL pure ; si une publication échoue, `build.sh` réessaie avec la forme plus simple.
+  Sous **Linux**, l'affichage se fait sur le processeur (pas de contexte OpenGL) : environ 125 ms de moins au démarrage, sans effet visible pour une
+  calculatrice. `WCALC_RENDERING=gpu` rend le choix à Avalonia (OpenGL si disponible).
+* **Native AOT (Linux, macOS)** : sur un poste Linux ou macOS, `build.sh` compile le programme entier (framework et Avalonia compris) en un seul
+  exécutable natif : plus de runtime à démarrer, plus de JIT. Il faut `clang` et `zlib` (`sudo pacman -S clang zlib`). Un programme Native AOT ne se
+  construit que pour le système sur lequel on le construit : le `.exe` Windows reste en ReadyToRun composite depuis Linux. `NATIVE_AOT=0 ./build.sh`
+  le désactive ; si la publication échoue, `build.sh` réessaie en ReadyToRun composite. Après une publication, lisez les avertissements `IL2xxx` / `IL3xxx` :
+  ils signalent le code qui utilise la réflexion et que le découpage pourrait casser.
+* **Liaisons compilées** : les écrans déclarent leur `x:DataType` et Avalonia compile les liaisons au lieu de les résoudre par réflexion à
+  chaque ouverture. Une nouvelle liaison dans un `DataTemplate` doit donc déclarer le type de son élément (`x:DataType`), et une liaison vers le
+  `DataContext` d'un parent s'écrit `$parent[UserControl].((vm:CalculatorViewModel)DataContext).MaCommande`.
+* **Travail en parallèle** : pendant qu'Avalonia prépare le système de fenêtres (environ 150 ms), un second fil lit les paramètres, charge les
+  traductions et construit le moteur de calcul (`StartupWarmup`). Les ViewModels ne doivent donc jamais toucher à l'interface (ni `Dispatcher`, ni contrôle).
+* **Ressources** : les couleurs du thème ne sont réécrites que si elles changent (sinon toute l'interface les relit), et l'icône de la fenêtre
+  est une image de 128 px (`icon-window.png`) au lieu de l'image de 512 px.
+* **Android** : AOT complet par défaut (tout le programme est compilé sur l'ordinateur, pas à chaque lancement sur le téléphone ; APK plus gros,
+  build plus long). Le SDK Android exige alors le découpage (« trimming ») du framework et d'Avalonia. `ANDROID_AOT=0 ./build.sh android` le désactive ;
+  `build.sh` réessaie sans AOT si le compilateur AOT du workload manque.
+* **Mesurer** : `./bench-startup.sh` publie deux variantes (IL pur et ReadyToRun composite), les lance plusieurs fois et affiche le temps
+  jusqu'à l'ouverture de la fenêtre, puis jusqu'à ce qu'elle soit utilisable. `./bench-startup.sh --help` donne les options
+  (`-n` nombre de lancements, `--only`, `--reuse`, `--app` pour mesurer une version déjà construite). Une fenêtre s'ouvre et se ferme à chaque
+  lancement ; sans affichage, le script démarre Xvfb s'il est installé.
+  Les variables `WCALC_STARTUP_TRACE=1` et `WCALC_EXIT_AFTER_STARTUP=1` activent les jalons de démarrage dans n'importe quelle version.
+
 ### Installeurs
 
 ```bash

@@ -13,6 +13,9 @@
 #   macOS    wCalculator_<version>.zip       needs: dotnet, zip (a .app bundle; MAC_ARCH=x64 for Intel -> _x64.zip)
 #
 # The version is the <Version> of Directory.Build.props.
+#
+# Environment: NATIVE_AOT=0 (no Native AOT: Linux and macOS builds made on that system are native by default), READY_TO_RUN=0 (no ReadyToRun on the desktop builds), READY_TO_RUN_COMPOSITE=0 (plain, smaller ReadyToRun), ANDROID_AOT=0 (no AOT on Android).
+# To measure the startup of the Linux build: ./bench-startup.sh
 set -euo pipefail
 
 cd "$(dirname "$0")"
@@ -34,10 +37,76 @@ need() {
 }
 
 # Not a single file: the installers copy the whole folder.
+# ReadyToRun (code precompiled to native code) makes the application start much faster. The default is the "composite"
+# form: the framework and the application are precompiled into one image (measured with bench-startup.sh: 321 ms to a
+# usable window instead of 445 ms for plain ReadyToRun and 866 ms without; the installers are bigger).
+#   READY_TO_RUN_COMPOSITE=0   plain ReadyToRun (smaller)
+#   READY_TO_RUN=0             no ReadyToRun at all
+# If a publish fails (compiler pack not downloadable...), the script retries with the next simpler form.
+# The runtime identifier of this machine, the only one Native AOT can build for (empty when unknown).
+host_rid() {
+  case "$(uname -s)-$(uname -m)" in
+    Linux-x86_64) echo linux-x64 ;;
+    Linux-aarch64) echo linux-arm64 ;;
+    Darwin-arm64) echo osx-arm64 ;;
+    Darwin-x86_64) echo osx-x64 ;;
+    *) echo "" ;;
+  esac
+}
+
+# Native AOT: one native executable, no runtime to start (the fastest start-up). Only for the system this script runs
+# on, and it needs a C compiler and linker (clang) with the zlib headers. NATIVE_AOT=0 turns it off.
+publish_native_aot() { # <rid> <output folder>
+  local rid="$1" out="$2"
+  [ "${NATIVE_AOT:-1}" = "1" ] || return 1
+  [ "$rid" = "$(host_rid)" ] || return 1
+  if ! command -v clang >/dev/null 2>&1; then
+    echo "  Native AOT needs clang and zlib (Arch: sudo pacman -S clang zlib; Debian: sudo apt install clang zlib1g-dev): using ReadyToRun" >&2
+    return 1
+  fi
+  rm -rf "${out:?}"
+  dotnet publish src/Calculator.Desktop -c Release -r "$rid" --self-contained true -p:PublishAot=true -p:PublishReadyToRun=false \
+    -p:DebugType=None -p:DebugSymbols=false -o "$out" || return 1
+  # Debug symbols of the native program are useless to the user.
+  find "$out" -maxdepth 1 \( -name '*.dbg' -o -name '*.pdb' -o -name '*.dSYM' \) -exec rm -rf {} +
+  [ -x "$out/$APP_NAME" ] || return 1
+}
+
+# The targets only copy the published folder, so a folder published during this run is not built again (Native AOT
+# takes a minute or more, and four Linux packages use the same one).
+declare -A PUBLISHED=()
+
 publish_desktop() { # <rid> <output folder>
+  if [ -n "${PUBLISHED["$1:$2"]:-}" ] && [ -d "$2" ]; then
+    return 0
+  fi
+  publish_desktop_once "$@" && PUBLISHED["$1:$2"]=1
+}
+
+publish_desktop_once() { # <rid> <output folder>
+  local common=(-c Release -r "$1" --self-contained true -p:PublishSingleFile=false -p:DebugType=None -p:DebugSymbols=false -o "$2")
+  if publish_native_aot "$1" "$2"; then
+    return 0
+  fi
+  if [ "${NATIVE_AOT:-1}" = "1" ] && [ "$1" = "$(host_rid)" ]; then
+    echo "  Native AOT publish failed for $1: retrying with ReadyToRun (read the warnings and errors above)" >&2
+  fi
   rm -rf "${2:?}"
-  dotnet publish src/Calculator.Desktop -c Release -r "$1" --self-contained true \
-    -p:PublishSingleFile=false -p:DebugType=None -p:DebugSymbols=false -o "$2"
+  if [ "${READY_TO_RUN:-1}" = "1" ]; then
+    if [ "${READY_TO_RUN_COMPOSITE:-1}" = "1" ]; then
+      if dotnet publish src/Calculator.Desktop "${common[@]}" -p:PublishReadyToRun=true -p:PublishReadyToRunComposite=true; then
+        return 0
+      fi
+      echo "  Composite ReadyToRun publish failed for $1: retrying with plain ReadyToRun" >&2
+      rm -rf "${2:?}"
+    fi
+    if dotnet publish src/Calculator.Desktop "${common[@]}" -p:PublishReadyToRun=true -p:PublishReadyToRunComposite=false; then
+      return 0
+    fi
+    echo "  ReadyToRun publish failed for $1: retrying without it (the application will start more slowly)" >&2
+    rm -rf "${2:?}"
+  fi
+  dotnet publish src/Calculator.Desktop "${common[@]}" -p:PublishReadyToRun=false
 }
 
 # ---------------------------------------------------------------- Linux (Flatpak)
@@ -268,10 +337,20 @@ build_windows() {
 build_android() {
   need dotnet "the .NET 10 SDK and 'dotnet workload install android'" || return 1
 
+  # Full AOT compiles the whole application on the computer instead of on the phone: the fastest start-up, a bigger APK
+  # (the SDK also trims the framework for it). ANDROID_AOT=0 turns it off, and the build is retried without it when the
+  # AOT compiler of the workload is missing.
   local out="$WORK/android" apk
+  local args=(-c Release -f net10.0-android -p:AndroidPackageFormat=apk
+    -p:ApplicationDisplayVersion="$VERSION" -p:ApplicationVersion="$VERSION_CODE" -o "$out")
   rm -rf "${out:?}"
-  dotnet publish src/Calculator.Android -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
-    -p:ApplicationDisplayVersion="$VERSION" -p:ApplicationVersion="$VERSION_CODE" -o "$out"
+  if [ "${ANDROID_AOT:-1}" = "1" ] && dotnet publish src/Calculator.Android "${args[@]}" -p:AndroidAot=true; then
+    :
+  else
+    [ "${ANDROID_AOT:-1}" = "1" ] && echo "  AOT build failed: retrying without it (slower startup on the phone)" >&2
+    rm -rf "${out:?}"
+    dotnet publish src/Calculator.Android "${args[@]}" -p:AndroidAot=false
+  fi
 
   # The SDK signs the package with its debug key (no keystore of our own): that is what lets the APK install.
   apk="$(find "$out" -maxdepth 1 -name '*-Signed.apk' | head -n 1)"

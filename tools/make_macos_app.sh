@@ -3,7 +3,7 @@
 set -euo pipefail
 SRC="$1"
 APP="$2"
-VERSION="${3:-1.0.0}"
+VERSION="${3:-1.0.1}"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp -R "$SRC"/. "$APP/Contents/MacOS/"

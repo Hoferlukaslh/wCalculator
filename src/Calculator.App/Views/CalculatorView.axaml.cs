@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
+using CalcApp.Services;
 using CalcApp.ViewModels;
 
 namespace CalcApp.Views;
@@ -12,7 +13,9 @@ public partial class CalculatorView : UserControl
 
     public CalculatorView()
     {
+        StartupTrace.Mark("calculator-view-start");
         InitializeComponent();
+        StartupTrace.Mark("calculator-view-loaded");
         DataContextChanged += (_, _) => HookViewModel();
         HookViewModel();
     }

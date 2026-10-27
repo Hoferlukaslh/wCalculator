@@ -161,22 +161,40 @@ public static class AppearanceManager
             ["AccentFg"] = accentFg,
         };
 
+        // Writing a resource makes every DynamicResource of the interface look it up again (hundreds of them), even if
+        // the value is the same: only the colours that really changed are written. At start-up the second call (when
+        // the window learns whether it is see-through) then changes nothing.
         foreach (KeyValuePair<string, Color> kv in values)
         {
+            if (app.Resources.TryGetValue(kv.Key, out object? existing) && existing is SolidColorBrush brush && brush.Color == kv.Value)
+            {
+                continue;
+            }
+
             app.Resources[kv.Key] = new SolidColorBrush(kv.Value);
         }
 
         // The standard controls (radio buttons, sliders, text box focus, ...) take their accent from the Fluent theme,
         // which by default is the accent colour of the operating system: give them the same colour as the keys.
-        app.Resources["SystemAccentColor"] = accent;
-        app.Resources["SystemAccentColorLight1"] = Mix(accent, Colors.White, 0.15);
-        app.Resources["SystemAccentColorLight2"] = Mix(accent, Colors.White, 0.30);
-        app.Resources["SystemAccentColorLight3"] = Mix(accent, Colors.White, 0.45);
-        app.Resources["SystemAccentColorDark1"] = Mix(accent, Colors.Black, 0.15);
-        app.Resources["SystemAccentColorDark2"] = Mix(accent, Colors.Black, 0.30);
-        app.Resources["SystemAccentColorDark3"] = Mix(accent, Colors.Black, 0.45);
+        SetColor(app, "SystemAccentColor", accent);
+        SetColor(app, "SystemAccentColorLight1", Mix(accent, Colors.White, 0.15));
+        SetColor(app, "SystemAccentColorLight2", Mix(accent, Colors.White, 0.30));
+        SetColor(app, "SystemAccentColorLight3", Mix(accent, Colors.White, 0.45));
+        SetColor(app, "SystemAccentColorDark1", Mix(accent, Colors.Black, 0.15));
+        SetColor(app, "SystemAccentColorDark2", Mix(accent, Colors.Black, 0.30));
+        SetColor(app, "SystemAccentColorDark3", Mix(accent, Colors.Black, 0.45));
 
         Changed?.Invoke();
+    }
+
+    private static void SetColor(Application app, string key, Color color)
+    {
+        if (app.Resources.TryGetValue(key, out object? existing) && existing is Color current && current == color)
+        {
+            return;
+        }
+
+        app.Resources[key] = color;
     }
 
     private static byte Alpha(double a) => (byte)Math.Round(Math.Clamp(a, 0.0, 1.0) * 255.0);

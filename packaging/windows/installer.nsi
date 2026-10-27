@@ -1,5 +1,5 @@
 ; Installer of wCalculator (NSIS 3, Modern UI 2).
-; Called by build.sh:  makensis -DVERSION=1.0.0 -DSRCDIR=<publish dir> -DICON=<icon.ico> -DOUTFILE=<installer.exe> [-DWELCOMEBMP=<welcome.bmp>] [-DHEADERBMP=<header.bmp>] installer.nsi
+; Called by build.sh:  makensis -DVERSION=1.0.1 -DSRCDIR=<publish dir> -DICON=<icon.ico> -DOUTFILE=<installer.exe> [-DWELCOMEBMP=<welcome.bmp>] [-DHEADERBMP=<header.bmp>] installer.nsi
 
 Unicode true
 !include "MUI2.nsh"
@@ -55,7 +55,7 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 !define MUI_HEADERIMAGE_UNBITMAP "${HEADERBMP}"
 !define MUI_HEADERIMAGE_RIGHT
 
-; The title of the welcome and finish pages may need three lines ("Welcome to the setup of wCalculator 1.0.0").
+; The title of the welcome and finish pages may need three lines ("Welcome to the setup of wCalculator 1.0.1").
 !define MUI_WELCOMEPAGE_TITLE_3LINES
 !define MUI_FINISHPAGE_TITLE_3LINES
 

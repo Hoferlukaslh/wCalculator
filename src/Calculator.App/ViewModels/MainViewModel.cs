@@ -44,9 +44,12 @@ public sealed class MainViewModel : ViewModelBase
 {
     private readonly Loc _loc = Loc.Instance;
     private readonly CalculatorViewModel _calculator;
-    private readonly DateViewModel _date;
-    private readonly ConverterViewModel _converter;
-    private readonly SettingsViewModel _settings;
+
+    // Created on first use: the calculator page is the only one shown at startup (the converter alone loads
+    // 150 units and the currency service).
+    private DateViewModel? _date;
+    private ConverterViewModel? _converter;
+    private SettingsViewModel? _settings;
     private NavItem? _selected;
     private object? _current;
     private bool _isPaneOpen;
@@ -54,9 +57,6 @@ public sealed class MainViewModel : ViewModelBase
     public MainViewModel()
     {
         _calculator = new CalculatorViewModel();
-        _date = new DateViewModel();
-        _converter = new ConverterViewModel();
-        _settings = new SettingsViewModel();
 
         var items = new List<NavItem>
         {
@@ -66,9 +66,11 @@ public sealed class MainViewModel : ViewModelBase
             new NavItem(_loc.Get("DateCalculation"), NavKind.Date, 0, Icons.CalendarBlank),
         };
 
-        foreach (Category c in _converter.Categories)
+        // Same names and order as UnitConverter.GetCategories(), without building the converter (the currency
+        // category is always the last one).
+        foreach (ConverterCategory c in UnitConverterDataLoader.OrderedCategories.Append(ConverterCategory.Currency))
         {
-            items.Add(new NavItem(c.Name, NavKind.Converter, c.Id, Icons.ForConverterCategory(c.Id)));
+            items.Add(new NavItem(_loc.Get("CategoryName_" + c + "Text"), NavKind.Converter, (int)c, Icons.ForConverterCategory((int)c)));
         }
 
         NavItems = new ObservableCollection<NavItem>(items);
@@ -152,12 +154,13 @@ public sealed class MainViewModel : ViewModelBase
                 Current = _calculator;
                 break;
             case NavKind.Date:
-                Current = _date;
+                Current = _date ??= new DateViewModel();
                 break;
             case NavKind.Settings:
-                Current = _settings;
+                Current = _settings ??= new SettingsViewModel();
                 break;
             default:
+                _converter ??= new ConverterViewModel();
                 _converter.SetCategory(item.CategoryId);
                 Current = _converter;
                 break;

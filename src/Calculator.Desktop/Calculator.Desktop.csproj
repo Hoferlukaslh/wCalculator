@@ -6,7 +6,36 @@
     <RootNamespace>Calculator.Desktop</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>..\Calculator.App\Assets\icon.ico</ApplicationIcon>
+
+    <!-- Startup. ReadyToRun ships the code already compiled to native code instead of compiling it at every launch
+         (only applies to "dotnet publish -r <rid>"; the size grows by about a third). TieredPGO adds profiling code
+         to the first compilation, useless for a calculator. Pass -p:PublishReadyToRun=false for a plain IL build.
+         build.sh also passes -p:PublishReadyToRunComposite=true (framework and application in one image: faster again). -->
+    <PublishReadyToRun Condition="'$(RuntimeIdentifier)' != '' and '$(PublishAot)' != 'true'">true</PublishReadyToRun>
+    <TieredPGO>false</TieredPGO>
+    <!-- No background garbage-collector thread to create at start-up (a calculator allocates next to nothing), and no
+         EventSource machinery for diagnostics tools (dotnet-counters, dotnet-trace) that nobody attaches. -->
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <EventSourceSupport>false</EventSourceSupport>
   </PropertyGroup>
+
+  <!-- Native AOT (build.sh passes -p:PublishAot=true on a Linux or macOS machine, for the system it runs on): the whole
+       program, framework and Avalonia included, is compiled to one native executable. No runtime to start, no JIT, no
+       assembly to load: the fastest start-up, and a smaller installation than ReadyToRun. It needs the compiled bindings
+       (no reflection on the view models) and trims what is not used, hence the warnings IL2xxx / IL3xxx to read after a
+       publish. A Native AOT program cannot be built for another system than the one it is built on (no Windows .exe from Linux). -->
+  <PropertyGroup Condition="'$(PublishAot)' == 'true'">
+    <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+    <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+    <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(PublishAot)' == 'true'">
+    <!-- Avalonia's own XAML is looked up by name at run time. -->
+    <TrimmerRootAssembly Include="Avalonia.Themes.Fluent" />
+    <TrimmerRootAssembly Include="Calculator.App" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
     <ProjectReference Include="..\Calculator.App\Calculator.App.csproj" />

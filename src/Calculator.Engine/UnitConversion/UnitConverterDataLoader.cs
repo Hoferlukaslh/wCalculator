@@ -42,6 +42,12 @@ public sealed class UnitConverterDataLoader : IConverterDataLoader
         ConverterCategory.Data, ConverterCategory.Pressure, ConverterCategory.Angle,
     };
 
+    /// <summary>
+    /// The categories of this loader, in display order (the currency category, added by <see cref="CurrencyConverterDataLoader"/>,
+    /// comes last). Lets the interface build its navigation list without loading all the unit data.
+    /// </summary>
+    public static IReadOnlyList<ConverterCategory> OrderedCategories => s_converterModes;
+
     private readonly Func<string, string> _getString;
 
     // Region-dependent flags (default to US)

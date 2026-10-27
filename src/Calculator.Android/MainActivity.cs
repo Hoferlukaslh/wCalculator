@@ -25,6 +25,8 @@ public class MainActivity : AvaloniaMainActivity<CalcApp.App>
     {
         // Before the application starts, so that the settings page knows whether the device can vibrate.
         Haptics.Device = new AndroidHaptics(this);
+        // The main view model is built on a second thread while Avalonia starts.
+        StartupWarmup.Begin();
         base.OnCreate(savedInstanceState);
     }
 }

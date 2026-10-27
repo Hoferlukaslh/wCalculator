@@ -4,15 +4,32 @@
     <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
     <ApplicationId>com.hoferlukaslh.wcalculator</ApplicationId>
-    <ApplicationVersion>1</ApplicationVersion>
-    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>10001</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.1</ApplicationDisplayVersion>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <RootNamespace>CalculatorAndroid</RootNamespace>
-    <!-- Avalonia reflection bindings need the view-model members: do not trim them away. -->
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+  </PropertyGroup>
+
+  <!-- -p:AndroidAot=false (ANDROID_AOT=0 ./build.sh android): no trimming and no AOT, the code is compiled on the phone. -->
+  <PropertyGroup Condition="'$(AndroidAot)' == 'false'">
     <PublishTrimmed>false</PublishTrimmed>
     <AndroidLinkMode>None</AndroidLinkMode>
     <RunAOTCompilation>false</RunAOTCompilation>
-    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+  </PropertyGroup>
+
+  <!-- Default build: full ahead-of-time compilation of every assembly (the whole program is compiled on the computer, not
+       at each launch on the phone): the fastest start-up, a bigger APK and a longer build. The profiled AOT of the SDK
+       only knows the methods of its own sample applications, so it would leave Avalonia to the JIT. The Android SDK only
+       allows AOT together with trimming, so the framework and Avalonia are trimmed ("partial": the assemblies of this
+       application are left whole). The bindings are compiled, so nothing needs reflection on the view models. -->
+  <PropertyGroup Condition="'$(AndroidAot)' != 'false'">
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+    <RunAOTCompilation>true</RunAOTCompilation>
+    <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia.Android" Version="$(AvaloniaVersion)" />
